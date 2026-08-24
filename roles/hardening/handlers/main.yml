@@ -1,0 +1,7 @@
+---
+# handlers file for roles/hardening
+
+- name: Reload sysctl
+  ansible.builtin.command:
+    cmd: sysctl --system
+  changed_when: true

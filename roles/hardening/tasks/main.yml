@@ -1,0 +1,22 @@
+---
+# tasks file for roles/hardening
+
+- name: Deploy kernel hardening configuration
+  ansible.builtin.template:
+    src: 99-hardening.conf.j2
+    dest: /etc/sysctl.d/99-hardening.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload sysctl
+
+- name: Apply kernel hardening parameters
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    sysctl_set: true
+    reload: false
+  loop: "{{ hardening_sysctl_config | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}={{ item.value }}"

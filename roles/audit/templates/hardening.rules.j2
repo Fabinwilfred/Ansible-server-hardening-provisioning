@@ -1,0 +1,15 @@
+# Identity and authentication
+-w /etc/passwd -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/group -p wa -k identity
+
+# Authorization / privilege configuration
+-w /etc/sudoers -p wa -k authorization
+-w /etc/sudoers.d/ -p wa -k authorization
+
+# SSH configuration
+-w /etc/ssh/ -p wa -k ssh
+
+# System Logs
+-w /var/log/ -p wa -k logs
+

@@ -1,0 +1,6 @@
+---
+# handlers file for roles/ntp
+- name: Restart chrony
+  service:
+    name: "{{ ntp_service }}"
+    state: restarted

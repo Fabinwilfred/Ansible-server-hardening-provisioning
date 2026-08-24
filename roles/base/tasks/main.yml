@@ -1,0 +1,40 @@
+---
+# tasks file for roles/base for debian
+- name: install packages
+  apt:
+    name: "{{ install_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  register: installed_package_list
+#  when: ansible_os_family == "Debian"
+
+
+- name: Display package installation result
+  ansible.builtin.debug:
+    var: installed_package_list
+
+
+#- name: install RedHat packages
+#  dnf:
+#    name: "{{ install_packages }}"
+#    state: present
+#    update_cache: true
+#  when: ansible_os_family == "RedHat"
+#  register: apt_update_list
+
+
+#- name: Start and enable base services
+#  ansible.builtin.service:
+#    name: "{{ item }}"
+#    state: started
+#    enabled: true
+#  loop: "{{ installed_service }}"
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ timezone }}"
+
+- name: hostname
+  ansible.builtin.hostname:
+    name: "{{ hostname }}"

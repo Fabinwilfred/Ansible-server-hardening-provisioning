@@ -1,0 +1,39 @@
+---
+# tasks file for roles/firewall
+
+- name: Install UFW
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Allow SSH
+  community.general.ufw:
+    rule: allow
+    port: "{{ firewall_ssh_port | string }}"
+    proto: tcp
+
+- name: Allow HTTP
+  community.general.ufw:
+    rule: allow
+    port: "{{ firewall_http_port | string }}"
+    proto: tcp
+  when: firewall_http_enabled
+
+- name: Enable firewall
+  community.general.ufw:
+    
+    policy: "{{ firewall_default_incoming_policy }}"
+    direction: incoming
+
+- name: Set outgoing firewall policy
+  community.general.ufw:
+    
+    policy: "{{ firewall_default_outgoing_policy }}"
+    direction: outgoing
+
+- name: Enable firewall
+  community.general.ufw:
+    state: enabled
+  when: firewall_enabled

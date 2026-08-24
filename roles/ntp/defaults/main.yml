@@ -1,0 +1,12 @@
+---
+# defaults file for roles/ntp
+ntp_package: chrony
+ntp_service: chrony
+
+#ntp_timezone: Europe/Berlin
+
+ntp_servers:
+  - "0.ubuntu.pool.ntp.org"
+  - "1.ubuntu.pool.ntp.org"
+  - "2.ubuntu.pool.ntp.org"
+  - "3.ubuntu.pool.ntp.org"

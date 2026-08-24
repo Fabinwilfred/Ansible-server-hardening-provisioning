@@ -1,0 +1,15 @@
+# Ansible-managed SSH configuration
+
+Port {{ ssh_port }}
+
+PermitRootLogin {{ ssh_permit_root_login }}
+
+PasswordAuthentication {{ ssh_password_authentication }}
+
+PubkeyAuthentication {{ ssh_pubkey_authentication }}
+
+MaxAuthTries {{ ssh_max_auth_tries }}
+
+X11Forwarding {{ ssh_x11_forwarding }}
+
+AllowUsers {{ ssh_allowed_users | join(' ') }}

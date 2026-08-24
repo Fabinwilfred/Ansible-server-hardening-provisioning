@@ -1,0 +1,16 @@
+server {{ ntp_servers[0] }} iburst
+server {{ ntp_servers[1] }} iburst
+server {{ ntp_servers[2] }} iburst
+server {{ ntp_servers[3] }} iburst
+
+driftfile /var/lib/chrony/chrony.drift
+
+makestep 1.0 3
+
+rtcsync
+
+keyfile /etc/chrony/chrony.keys
+
+leapsectz right/UTC
+
+logdir /var/log/chrony

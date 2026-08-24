@@ -1,0 +1,54 @@
+---
+# tasks file for roles/users and home directory
+- name: Add the user 'james' with a bash shell
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: /bin/bash
+    create_home: true
+    home: "/home/{{ item.name }}"
+    groups: "{{ item.groups }}"
+#    password: "{{ item.password }}"
+    append: true
+    state: present
+
+  loop: "{{ users }}"
+  loop_control: 
+    label: "{{ item.name }}"
+  no_log: true
+  
+- name: Add SSH public key
+  ansible.posix.authorized_key:
+    user: "{{ item. }}"
+    key: "{{ user_ssh_keys[item.name] }}"
+    state: present
+    manage_dir: true
+  loop: "{{ users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - user_ssh_key[item.name] | default('') |  length > 0
+
+# Create sudoers configuration for sudo users
+- name: Configure sudo access
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ item.name }}"
+    content: "{{ item.name }} ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "/usr/sbin/visudo -cf %s"
+  loop: "{{ users | selectattr('sudo', 'equalto', true) | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+# Add sudo users to sudo group
+- name: Add sudo users to sudo group
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    groups:
+      - sudo
+    append: true
+  loop: "{{ users | selectattr('sudo', 'equalto', true) | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+

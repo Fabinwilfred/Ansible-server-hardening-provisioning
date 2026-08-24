@@ -1,0 +1,30 @@
+---
+# Users that should be created
+users:
+  - name: john
+#    password: ""
+    groups: []
+    sudo: false
+
+  - name: marvels
+#    password: ""
+    groups: []
+    sudo: false
+
+  - name: thanos
+#    password: ""
+    groups: []
+    sudo: false
+
+  - name: ansible
+#    password: ""
+    groups: []
+    sudo: true
+
+# SSH public keys
+user_ssh_keys:
+  john: ""
+  marvels: ""
+  thanos: ""
+  ansible: ""
+

@@ -1,0 +1,9 @@
+---
+# defaults file for roles/unattended_upgrades
+security_auto_updates: true
+
+#Automaticaly reboot when required
+auto_reboot: false
+
+#Reboot time if automatic reboot is enabled
+auto_reboot_time: "03:00"

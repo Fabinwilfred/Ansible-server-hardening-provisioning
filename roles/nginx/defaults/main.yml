@@ -1,0 +1,12 @@
+---
+# defaults file for roles/nginx
+nginx_package: nginx
+nginx_service: nginx
+
+nginx_document_root: /var/www/html
+
+nginx_web_user: www-data
+nginx_web_group: www-data
+
+nginx_index_file: index.html
+

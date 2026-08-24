@@ -1,0 +1,33 @@
+---
+# install nginx
+
+- name: install nginx
+  package:
+    name: "{{ nginx_package }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+
+- name: ensure nginx document root path exists
+  ansible.builtin.file:
+    path: "{{ nginx_document_root }}"
+    state: directory
+    owner: "{{ nginx_web_user }}"
+    group: "{{ nginx_web_group }}"
+    mode: "0755"
+
+- name: Deploy Nginx index page
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ nginx_document_root }}/{{ nginx_index_file }}"
+    owner: "{{ nginx_web_user }}"
+    group: "{{ nginx_web_group }}"
+    mode: "0644"
+  notify: Restart Nginx
+
+- name: Enable and start Nginx
+  ansible.builtin.systemd:
+    name: "{{ nginx_service }}"
+    enabled: true
+    state: started

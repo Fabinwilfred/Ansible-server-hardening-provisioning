@@ -1,0 +1,46 @@
+---
+- name: Configure and harden servers
+  hosts: all
+  become: true
+
+  roles:
+    - base
+    - users
+    - ntp
+    - ssh
+    - firewall
+    - fail2ban
+    - hardening
+#    - audit
+    - unattended_upgrades
+    - nginx
+    - role: audit
+      tags:
+        - audit
+
+  post_tasks:
+    - name: Gather installed package information
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Show selected installed packages
+      ansible.builtin.debug:
+        msg: >-
+          {{ item }}:
+          {{ ansible_facts.packages[item][0].version
+             if item in ansible_facts.packages
+             else 'NOT INSTALLED' }}
+      loop:
+        - curl
+        - wget
+        - vim
+        - git
+        - unzip
+        - rsync
+        - htop
+        - nginx
+        - fail2ban
+        - ufw
+        - chrony
+        - unattended-upgrades
+        - audit

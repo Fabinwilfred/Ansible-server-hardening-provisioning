@@ -1,0 +1,15 @@
+---
+# defaults file for roles/audit
+#Debian_package_name: auditd
+#Redhat_service_name: audit
+audit_debian: auditd
+audit_redhat: audit
+
+auditd_rules_file: /etc/audit/rules.d/hardening.rules
+
+#auditd_enabled: true
+#auditd_started: true
+
+auditd_rules_owner: root
+auditd_rules_group: root
+auditd_rules_mode: "0640"

@@ -1,0 +1,10 @@
+---
+timezone: Europe/Berlin
+
+ssh_port: 22
+
+ssh_allowed_users:
+  - ansible
+  - thanos
+  - marvel
+  - john

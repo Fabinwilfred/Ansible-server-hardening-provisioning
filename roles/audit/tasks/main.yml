@@ -1,0 +1,24 @@
+---
+# tasks file for roles/audit
+- name: Install audit
+  apt:
+    name: auditd
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Deploy audit rule
+  template:
+    src: hardening.rules.j2
+    dest: "{{ auditd_rules_file }}"
+    owner: "{{ auditd_rules_owner }}"
+    group: "{{ auditd_rules_group }}"
+    mode: "{{ auditd_rules_mode }}"
+  notify: Reload audit rules
+
+- name: Enable and start auditd
+  ansible.builtin.service:
+    name: auditd
+    state: started
+    enabled: true

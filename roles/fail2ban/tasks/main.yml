@@ -1,0 +1,23 @@
+---
+- name: install fail2ban
+  package:
+    name: fail2ban
+    state: present
+    update_cache: true
+
+
+# tasks file for roles/fail2ban
+- name: Configure fail2ban
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart fail2ban
+
+- name: Enable fail2ban service
+  service:
+    name: fail2ban
+    enabled: true
+    state: started

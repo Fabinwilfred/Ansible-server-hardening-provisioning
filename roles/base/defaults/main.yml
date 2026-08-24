@@ -1,0 +1,18 @@
+---
+# defaults file for roles/base
+install_packages:
+  - curl
+  - wget
+  - vim
+  - git
+  - unzip
+  - rsync
+  - htop
+#  - fail2ban
+#  - auditd
+#  - nginx
+
+
+timezone: Europe/Berlin
+
+hostname: "{{ inventory_hostname }}"
