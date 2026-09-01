@@ -1,0 +1,44 @@
+---
+# tasks file for roles/kubernetes
+- name: Create APT keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Download Kubernetes GPG key
+  ansible.builtin.get_url:
+    url: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/deb/Release.key"
+    dest: /tmp/kubernetes-release.key
+    mode: "0644"
+
+- name: Install Kubernetes GPG key
+  ansible.builtin.command:
+    cmd: >
+      gpg --dearmor
+      -o {{ kubernetes_keyring }}
+      /tmp/kubernetes-release.key
+  args:
+    creates: "{{ kubernetes_keyring }}"
+
+- name: Set Kubernetes keyring permissions
+  ansible.builtin.file:
+    path: "{{ kubernetes_keyring }}"
+    mode: "0644"
+
+- name: Add Kubernetes APT repository
+  ansible.builtin.apt_repository:
+    repo: >
+      deb [signed-by={{ kubernetes_keyring }}]
+      https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/deb/ /
+    filename: kubernetes
+    state: present
+
+- name: Update APT cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install kubectl
+  ansible.builtin.apt:
+    name: "{{ kubernetes_packages }}"
+    state: present

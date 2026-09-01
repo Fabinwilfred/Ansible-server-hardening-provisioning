@@ -17,6 +17,8 @@
     - role: audit
       tags:
         - audit
+    - docker
+    - kubernetes
 
   post_tasks:
     - name: Gather installed package information

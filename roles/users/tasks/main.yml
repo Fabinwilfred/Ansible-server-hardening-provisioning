@@ -1,24 +1,23 @@
 ---
 # tasks file for roles/users and home directory
-- name: Add the user 'james' with a bash shell
+- name: Add user accounts
   ansible.builtin.user:
     name: "{{ item.name }}"
     shell: /bin/bash
     create_home: true
     home: "/home/{{ item.name }}"
     groups: "{{ item.groups }}"
-#    password: "{{ item.password }}"
+    password: "{{ item.password | password_hash('sha512') if item.password else omit }}"
+    update_password: on_create
     append: true
     state: present
-
   loop: "{{ users }}"
-  loop_control: 
+  loop_control:
     label: "{{ item.name }}"
-  no_log: true
-  
+
 - name: Add SSH public key
   ansible.posix.authorized_key:
-    user: "{{ item. }}"
+    user: "{{ item.name }}"
     key: "{{ user_ssh_keys[item.name] }}"
     state: present
     manage_dir: true
@@ -26,7 +25,8 @@
   loop_control:
     label: "{{ item.name }}"
   when:
-    - user_ssh_key[item.name] | default('') |  length > 0
+    - user_ssh_keys[item.name] is defined
+    - user_ssh_keys[item.name] | length > 0
 
 # Create sudoers configuration for sudo users
 - name: Configure sudo access
@@ -37,7 +37,7 @@
     group: root
     mode: "0440"
     validate: "/usr/sbin/visudo -cf %s"
-  loop: "{{ users | selectattr('sudo', 'equalto', true) | list }}"
+  loop: "{{ users | selectattr('sudo', 'defined') | selectattr('sudo', 'equalto', true) | list }}"
   loop_control:
     label: "{{ item.name }}"
 
@@ -48,7 +48,6 @@
     groups:
       - sudo
     append: true
-  loop: "{{ users | selectattr('sudo', 'equalto', true) | list }}"
+  loop: "{{ users | selectattr('sudo', 'defined') | selectattr('sudo', 'equalto', true) | list }}"
   loop_control:
     label: "{{ item.name }}"
-
