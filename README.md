@@ -1,3 +1,66 @@
+# Ansible Server Hardening & Provisioning
+
+A comprehensive Ansible project for automating server hardening and provisioning tasks. A single playbook orchestrates 12 independent, reusable roles to secure and configure Ubuntu/Debian servers following industry best practices.
+
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [Roles](#roles)
+- [Repository Structure](#repository-structure)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Vault-Backed Secrets](#vault-backed-secrets)
+- [Usage](#usage)
+- [Requirements](#requirements)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Overview
+
+This Ansible project automates the hardening and provisioning of servers with a focus on:
+
+- Security hardening best practices (SSH, firewall, intrusion prevention, kernel sysctl)
+- System configuration and provisioning (users, NTP, unattended upgrades)
+- Application-layer provisioning (Nginx, Docker, Kubernetes tooling)
+- Reusable, independently testable roles orchestrated by one playbook
+
+## Roles
+
+`playbooks/site.yml` applies these roles in order — base OS configuration and security controls first, application-layer services last:
+
+| Role | Purpose |
+|---|---|
+| [base](roles/base/README.md) | Package installation, timezone, and hostname configuration applied to every host |
+| [users](roles/users/README.md) | User accounts, SSH keys, and sudo access — supports vault-encrypted credentials |
+| [ntp](roles/ntp/README.md) | Chrony-based time synchronization |
+| [ssh](roles/ssh/README.md) | SSH hardening — key-only auth, no root login, limited auth attempts |
+| [firewall](roles/firewall/README.md) | UFW with a default-deny incoming policy |
+| [fail2ban](roles/fail2ban/README.md) | Brute-force protection |
+| [hardening](roles/hardening/README.md) | Kernel-level sysctl hardening |
+| [unattended_upgrades](roles/unattended_upgrades/README.md) | Automatic security patching |
+| [nginx](roles/nginx/README.md) | Nginx installation and minimal site provisioning |
+| [audit](roles/audit/README.md) | auditd installation and custom audit rules |
+| [docker](roles/docker/README.md) | Docker Engine via the official APT repo (GPG-keyring, not deprecated apt-key) |
+| [kubernetes](roles/kubernetes/README.md) | kubectl via the official Kubernetes APT repo |
+
+Each role has its own README covering its variables and an example invocation.
+
+## Repository Structure
+
+```
+.
+├── ansible.cfg              # Ansible configuration file (roles_path)
+├── requirements.yml         # Ansible Galaxy collection dependencies
+├── inventories/
+│   └── production/
+│       ├── hosts.yml        # Example host inventory
+│       └── group_vars/
+│           └── all.yml      # Shared variables (timezone, ssh_port, allowed users)
+├── playbooks/
+│   └── site.yml             # The single entry-point playbook
+└── roles/                   # 12 independent roles (see table above)
+```
 
 ## Prerequisites
 
@@ -9,23 +72,23 @@
 ## Quick Start
 
 1. **Clone the repository:**
-```bash
+   ```bash
    git clone https://github.com/Fabinwilfred/Ansible-server-hardening-provisioning.git
    cd Ansible-server-hardening-provisioning
-```
+   ```
 
 2. **Install required collections:**
-```bash
+   ```bash
    ansible-galaxy collection install -r requirements.yml
-```
+   ```
 
 3. **Point the inventory at your own host(s):**
    Edit `inventories/production/hosts.yml` (or create your own inventory file) with your target host information.
 
 4. **Run the playbook:**
-```bash
+   ```bash
    ansible-playbook -i inventories/production/hosts.yml playbooks/site.yml --ask-become-pass
-```
+   ```
 
    Add `--check --diff` first if you want a dry run before applying anything for real.
 
@@ -129,4 +192,3 @@ This project is open source. See LICENSE file for details.
 
 **Created by:** Fabin Wilfred
 **Repository:** [Ansible-server-hardening-provisioning](https://github.com/Fabinwilfred/Ansible-server-hardening-provisioning)
-READMEEOF
