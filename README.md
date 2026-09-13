@@ -186,8 +186,7 @@ Contributions are welcome:
 
 ## License
 
-This project is open source. See LICENSE file for details.
-
+This project is open source and free to use, modify, and share.
 ---
 
 **Created by:** Fabin Wilfred
