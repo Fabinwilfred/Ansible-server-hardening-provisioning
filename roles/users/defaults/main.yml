@@ -7,6 +7,11 @@ users:
     groups: []
     sudo: true
 
+# Whether sudo access for users flagged sudo: true is passwordless (NOPASSWD:ALL)
+# or requires a password (ALL). Passwordless is convenient for labs/automation;
+# set to false for production hosts unless you have a specific reason not to.
+users_sudo_nopasswd: true
+
 # SSH public keys, keyed by username.
 user_ssh_keys:
   deployer: ""
