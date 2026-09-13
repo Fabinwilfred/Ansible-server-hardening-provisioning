@@ -17,7 +17,7 @@ See `defaults/main.yml` for all configurable variables and their defaults.
 
 ## License
 
-MIT
+Open source
 
 ## Author
 
