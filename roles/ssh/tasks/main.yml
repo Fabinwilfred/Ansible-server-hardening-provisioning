@@ -2,7 +2,7 @@
 # tasks file for roles/ssh
 
 - name: Deploy SSH Config
-  template:
+  ansible.builtin.template:
     src: sshd_config.j2
     dest: /etc/ssh/sshd_config.d/99-ansible-hardening.conf
     owner: root
@@ -11,8 +11,8 @@
     validate: "/usr/sbin/sshd -t -f %s"
   notify: restart ssh
 
-- name: Ensure ssh is neabled and started
-  service:
+- name: Ensure ssh is enabled and started
+  ansible.builtin.service:
     name: ssh
     state: started
     enabled: true

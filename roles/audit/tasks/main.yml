@@ -1,7 +1,7 @@
 ---
 # tasks file for roles/audit
 - name: Install audit
-  apt:
+  ansible.builtin.apt:
     name: auditd
     state: present
     update_cache: yes
@@ -9,7 +9,7 @@
   when: ansible_os_family == "Debian"
 
 - name: Deploy audit rule
-  template:
+  ansible.builtin.template:
     src: hardening.rules.j2
     dest: "{{ auditd_rules_file }}"
     owner: "{{ auditd_rules_owner }}"

@@ -1,7 +1,7 @@
 ---
 # tasks file for roles/unattended_upgrades
 - name: Install unattended-upgrades
-  apt:
+  ansible.builtin.apt:
     name:
       - unattended-upgrades
       - apt-listchanges
@@ -10,7 +10,7 @@
     cache_valid_time: 3600
 
 - name: Configure Security repo
-  copy:
+  ansible.builtin.copy:
     dest: /etc/apt/apt.conf.d/50unattended-upgrades
     owner: root
     group: root

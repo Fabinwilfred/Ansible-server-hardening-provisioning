@@ -11,7 +11,6 @@
     - firewall
     - fail2ban
     - hardening
-#    - audit
     - unattended_upgrades
     - nginx
     - role: audit

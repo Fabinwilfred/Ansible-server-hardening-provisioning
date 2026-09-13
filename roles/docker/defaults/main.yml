@@ -1,7 +1,6 @@
 ---
 # defaults file for roles/docker
-# defaults file for roles/docker
-docker_pcakages:
+docker_packages:
   - docker-ce
   - docker-ce-cli
   - containerd.io

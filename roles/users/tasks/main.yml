@@ -1,4 +1,7 @@
 ---
+- name: Load vaulted user credentials and SSH keys (overrides defaults/main.yml)
+  ansible.builtin.include_vars: vault.yml
+
 # tasks file for roles/users and home directory
 - name: Add user accounts
   ansible.builtin.user:
@@ -7,7 +10,7 @@
     create_home: true
     home: "/home/{{ item.name }}"
     groups: "{{ item.groups }}"
-    password: "{{ item.password | password_hash('sha512') if item.password else omit }}"
+    password: "{{ (item.password | password_hash('sha512')) if (item.password | default(None)) else omit }}"
     update_password: on_create
     append: true
     state: present

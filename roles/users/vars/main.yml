@@ -1,3 +1,2 @@
 ---
-# roles/users/vars/main.yml
-- include_vars: vault.yml
+# vars file for roles/users

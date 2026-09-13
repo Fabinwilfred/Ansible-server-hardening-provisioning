@@ -1,7 +1,7 @@
 ---
 # tasks file for roles/docker
 - name: Create APT  keyrings directory
-  file:
+  ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     mode: "0755"
@@ -13,7 +13,7 @@
     mode: "0644"
 
 - name: Add Docker APT repo
-  deb822_repository:
+  ansible.builtin.deb822_repository:
     name: docker
     types: deb
     uris: https://download.docker.com/linux/ubuntu
@@ -33,14 +33,14 @@
   when: docker_repository.changed
 
 - name: install Docker
-  apt:
+  ansible.builtin.apt:
     name: "{{ docker_packages }}"
     state: present
 #    update_cache: true
 #    cache_valid_time: 3600
 
 - name: Enable and Start Docker
-  service:
+  ansible.builtin.service:
     name: docker
     enabled: true
     state: started

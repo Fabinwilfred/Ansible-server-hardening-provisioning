@@ -1,10 +1,8 @@
 ---
 timezone: Europe/Berlin
-
 ssh_port: 22
 
+# Override per environment.
 ssh_allowed_users:
   - ansible
-  - thanos
-  - marvel
-  - john
+  - deployer

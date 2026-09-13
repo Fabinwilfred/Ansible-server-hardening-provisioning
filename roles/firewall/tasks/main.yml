@@ -21,15 +21,13 @@
     proto: tcp
   when: firewall_http_enabled
 
-- name: Enable firewall
+- name: Set default incoming firewall policy
   community.general.ufw:
-    
     policy: "{{ firewall_default_incoming_policy }}"
     direction: incoming
 
 - name: Set outgoing firewall policy
   community.general.ufw:
-    
     policy: "{{ firewall_default_outgoing_policy }}"
     direction: outgoing
 

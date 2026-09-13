@@ -9,8 +9,7 @@ ssh_max_auth_tries: 5
 ssh_x11_forwarding: "no"
 
 
+# Override in group_vars/host_vars per environment.
 ssh_allowed_users:
   - ansible
-  - john
-  - marvels
-  - thanos
+  - deployer
