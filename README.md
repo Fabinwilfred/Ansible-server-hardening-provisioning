@@ -1,208 +1,125 @@
-# Ansible Server Hardening & Provisioning
-
-A comprehensive Ansible project for automating server hardening and provisioning tasks. This repository provides playbooks and roles to secure and configure servers following industry best practices.
-
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Repository Structure](#repository-structure)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [Requirements](#requirements)
-- [Contributing](#contributing)
-- [License](#license)
-
-## Overview
-
-This Ansible project automates the hardening and provisioning of servers with a focus on:
-
-- Security hardening best practices
-- System configuration and provisioning
-- Automated server setup and maintenance
-- Reusable playbooks and roles
-
-## Repository Structure
-
-```
-.
-├── ansible.cfg              # Ansible configuration file
-├── requirements.yml         # Ansible collections and dependencies
-├── inventories/             # Inventory files for hosts/groups
-├── playbooks/               # Main playbooks for orchestration
-└── roles/                   # Reusable Ansible roles
-```
-
-### Directory Descriptions
-
-- **`ansible.cfg`** - Ansible configuration settings (roles path, defaults, etc.)
-- **`requirements.yml`** - Ansible Galaxy requirements for collections
-- **`inventories/`** - Host inventory files organized by environment or group
-- **`playbooks/`** - Orchestration playbooks that use roles
-- **`roles/`** - Individual Ansible roles for specific tasks (hardening, configuration, etc.)
 
 ## Prerequisites
 
-Before using this project, ensure you have:
-
-- **Ansible** >= 2.9 installed ([Installation Guide](https://docs.ansible.com/ansible/latest/installation_guide/index.html))
-- **Python** >= 3.6 on control node
+- **Ansible** >= 2.14 installed ([Installation Guide](https://docs.ansible.com/ansible/latest/installation_guide/index.html))
+- **Python** >= 3.6 on the control node
 - **SSH access** to target servers
-- Appropriate **permissions** on target systems
+- **Sudo/become access** on target systems
 
 ## Quick Start
 
 1. **Clone the repository:**
-   ```bash
+```bash
    git clone https://github.com/Fabinwilfred/Ansible-server-hardening-provisioning.git
    cd Ansible-server-hardening-provisioning
-   ```
+```
 
-2. **Install dependencies:**
-   ```bash
+2. **Install required collections:**
+```bash
    ansible-galaxy collection install -r requirements.yml
-   ```
-
-3. **Update inventory:**
-   Edit `inventories/` with your target host information
-
-4. **Run a playbook:**
-   ```bash
-   ansible-playbook playbooks/your-playbook.yml -i inventories/your-inventory
-   ```
-
-## Project Structure
-
-### ansible.cfg
-
-```ini
-[defaults]
-roles_path = ./roles
 ```
 
-Configures Ansible to use the local `roles` directory.
+3. **Point the inventory at your own host(s):**
+   Edit `inventories/production/hosts.yml` (or create your own inventory file) with your target host information.
 
-### requirements.yml
-
-```yaml
----
-collections:
-  - name: community.general
-  - name: ansible.posix
+4. **Run the playbook:**
+```bash
+   ansible-playbook -i inventories/production/hosts.yml playbooks/site.yml --ask-become-pass
 ```
 
-Specifies required Ansible collections:
-- **community.general** - General-purpose community modules
-- **ansible.posix** - POSIX-specific modules for Linux/Unix systems
+   Add `--check --diff` first if you want a dry run before applying anything for real.
 
 ## Configuration
 
-### Ansible Configuration
-
-Modify `ansible.cfg` to customize Ansible behavior:
+`ansible.cfg` currently sets:
 
 ```ini
 [defaults]
 roles_path = ./roles
-host_key_checking = False
-inventory = ./inventories/hosts
 ```
 
-### Inventory Setup
+Variables that control role behavior (timezone, `ssh_port`, allowed SSH users, firewall policy, etc.) live in `inventories/production/group_vars/all.yml` and each role's own `defaults/main.yml` — override them per-environment via inventory `group_vars`/`host_vars` rather than editing role defaults directly.
 
-Add your servers to `inventories/` files:
+## Vault-Backed Secrets
 
-```ini
-[webservers]
-web1.example.com
-web2.example.com
+The `users` role supports loading real credentials and SSH keys from an `ansible-vault`-encrypted file instead of the generic example in `defaults/main.yml`. To set one up:
 
-[databases]
-db1.example.com
-db2.example.com
-
-[all:vars]
-ansible_user=admin
-ansible_ssh_private_key_file=~/.ssh/id_rsa
+```bash
+ansible-vault create roles/users/vars/vault.yml
 ```
+
+Enter content matching the variable names the role expects:
+
+```yaml
+---
+users:
+  - name: youruser
+    groups: []
+    sudo: true
+    # omit "password" entirely for SSH-key-only accounts
+
+user_ssh_keys:
+  youruser: "ssh-ed25519 AAAA... your-public-key"
+```
+
+Then add `--ask-vault-pass` to your `ansible-playbook` command. The role falls back safely to the generic `deployer` example in `defaults/main.yml` if no vault file is present.
 
 ## Usage
 
-### Running Playbooks
-
-Execute playbooks against your inventory:
-
 ```bash
-# Run a specific playbook
-ansible-playbook playbooks/hardening.yml -i inventories/production
+# Full run
+ansible-playbook -i inventories/production/hosts.yml playbooks/site.yml --ask-become-pass
 
-# Run with specific tags
-ansible-playbook playbooks/hardening.yml -i inventories/production -t "firewall"
+# Dry run (no changes applied)
+ansible-playbook -i inventories/production/hosts.yml playbooks/site.yml --check --diff --ask-become-pass
 
-# Run with verbosity
-ansible-playbook playbooks/hardening.yml -i inventories/production -vv
+# Run against one host only
+ansible-playbook -i inventories/production/hosts.yml playbooks/site.yml --limit your-host --ask-become-pass
 
-# Dry-run mode
-ansible-playbook playbooks/hardening.yml -i inventories/production --check
-```
+# Run a subset of roles by tag (currently: audit)
+ansible-playbook -i inventories/production/hosts.yml playbooks/site.yml --tags audit --ask-become-pass
 
-### Running Specific Roles
-
-Execute individual roles:
-
-```bash
-ansible-playbook -i inventories/hosts -c local -e "target=localhost" playbooks/role-name.yml
+# With vault-backed user credentials
+ansible-playbook -i inventories/production/hosts.yml playbooks/site.yml --ask-become-pass --ask-vault-pass
 ```
 
 ### Useful Ansible Commands
 
 ```bash
-# List all hosts in inventory
-ansible-inventory -i inventories/hosts --list
+# Check syntax without running anything
+ansible-playbook -i inventories/production/hosts.yml playbooks/site.yml --syntax-check
 
 # Ping all hosts
-ansible all -i inventories/hosts -m ping
+ansible all -i inventories/production/hosts.yml -m ping
 
-# Gather facts about hosts
-ansible all -i inventories/hosts -m setup
+# List all hosts in inventory
+ansible-inventory -i inventories/production/hosts.yml --list
 ```
 
 ## Requirements
 
-### Collections
+Collections required (managed by `requirements.yml`, installed via `ansible-galaxy collection install -r requirements.yml`):
 
-The project requires the following Ansible collections (managed by `requirements.yml`):
-
-- **community.general** - Extended modules for various system tasks
-- **ansible.posix** - POSIX and Linux-specific functionality
-
-Install with:
-```bash
-ansible-galaxy collection install -r requirements.yml
-```
+- **community.general** — UFW and other extended modules
+- **ansible.posix** — `authorized_key` and other POSIX-specific modules
 
 ## Contributing
 
-Contributions are welcome! Please:
+Contributions are welcome:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/improvement`)
 3. Make your changes
-4. Test thoroughly
-5. Commit with clear messages (`git commit -m 'Add feature'`)
-6. Push to your fork (`git push origin feature/improvement`)
-7. Open a Pull Request
+4. Test with `--check --diff` before a real run
+5. Commit with clear messages
+6. Open a Pull Request
 
 ## Best Practices
 
-- **Test in a non-production environment first** using `--check` mode
-- **Use tags** to run specific playbook sections
-- **Maintain inventory** files organized by environment
-- **Document roles** and their dependencies
-- **Keep roles focused** on a single responsibility
-- **Version lock** collection dependencies when stable
+- Test in a non-production environment first, using `--check --diff`
+- Use `--limit` to target a single host while testing
+- Keep real secrets in `ansible-vault`, never in plaintext defaults
+- Keep roles focused on a single responsibility
 
 ## License
 
@@ -210,5 +127,6 @@ This project is open source. See LICENSE file for details.
 
 ---
 
-**Created by:** Fabinwilfred  
+**Created by:** Fabin Wilfred
 **Repository:** [Ansible-server-hardening-provisioning](https://github.com/Fabinwilfred/Ansible-server-hardening-provisioning)
+READMEEOF
